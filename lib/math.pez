@@ -1,0 +1,19 @@
+# Various functions that are useful for doing math.
+
+# Greatest Common Denominator
+: gcd ( a b -- gcd )
+	dup 0= if drop exit then
+	swap over mod gcd ;
+
+# Least Common Multiple
+: lcm ( a b -- lcm )   2dup * -rot gcd / ;
+
+# Triangle numbers.
+: triangle ( x -- y )   dup 1+ * 2/ ;
+
+# Decimal equivalent of Gray code for n.
+# http://www2.research.att.com/~njas/sequences/A003188
+: grey ( x -- y )   dup 2/ xor ;
+
+# Rounds a float.
+: round ( f:n -- n )   0.5 f+ floor ;

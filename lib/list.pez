@@ -1,0 +1,42 @@
+# A trivial implementation of linked lists.
+
+struct: llist
+	cell: l>head
+	cell: l>tail
+;struct
+0 constant nil
+
+: car ( list -- head )  l>head@ ;
+: cdr ( list -- tail )  l>tail@ ;
+
+: cons ( list item -- new-list )
+	llist tuck ! ( list new-list )
+	tuck l>tail! ;
+
+: empty? ( list -- t|f )  0= ;
+
+: ca/dr ( list -- cdr car )
+	dup cdr swap car ;
+: cd/ar ( list -- car cdr )
+	dup car swap cdr ;
+
+variable list-each-word'
+# Executes the given item for each car of the list.
+: list-each ( list word -- )
+	list-each-word' !
+	begin dup empty? not while
+		cd/ar >r list-each-word' @ execute r>
+	repeat drop ;
+
+: list-reduce ( list word -- reduction )
+	swap cd/ar rot list-each ;
+# Hilariously, if you want to supply an initial value instead of using the head
+# of the list, this word is equivalent to list-each.
+
+# Finds the last node in a list.
+: list-end ( list -- end )
+	begin dup cdr 0<> while cdr repeat ;
+
+# Concatenates two lists, destructively plugging l2 to the end of l1.
+: list+ ( l1 l2 -- )
+	swap list-end l>tail! ;

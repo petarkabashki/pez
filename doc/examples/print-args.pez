@@ -1,0 +1,14 @@
+#! /usr/bin/env pez
+# A simple example of a bounded loop, a word definition, and getting at program
+# arguments.
+
+: print-args
+	argc 0= if "No argument to print." puts exit then
+	argv
+	argc 0 do
+		dup @ puts
+		cell-size +
+	loop ;
+		
+"argc = " print argc . cr
+print-args

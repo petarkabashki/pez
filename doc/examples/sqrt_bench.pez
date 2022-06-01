@@ -1,0 +1,55 @@
+#! /usr/bin/env pez
+
+# This is slightly less a "benchmark" than the name and structure of this code
+# imply, as libc's algorithm for calculating the square root of a number is
+# unlikely to be the same as the one we're using.
+
+fvariable x
+fvariable y
+
+: csqrt
+        fdup 0.0 f< if
+           cr ." "SQRT: Negative argument!"
+           exit
+        then
+        fdup 0.0 f<> if
+           fdup fdup x f!
+           1.893872 f* 0.154116 f+
+           1.047988 f* 1.0 f+
+           f/ y f!                 # y=(0.154116+1.893872*x)/(1.0+1.047988*x)
+
+           y f@                    # y
+           0.0                     # y c
+           begin
+                 fswap             # c y
+                 fdup              # c y y
+                 x f@              # c y y x
+                 fover             # c y y x y
+                 f/                # c y y x/y
+                 f-                # c y y-x/y
+                 -0.5              # c y (y-x/y) -0.5
+                 f*                # c y (y-x/y)*-0.5
+                 fdup              # cl y c c
+                 frot              # cl c c y
+                 f+                # cl c c+y
+                 frot              # c c+y cl
+                 frot              # c+y cl c
+                 fswap             # c+y c cl
+                 fover             # c+y c cl c
+                 f=                # c+y c =0?
+           until
+           fdrop
+        then
+;
+
+: cbenchmark 1600000 0 do 2.0 csqrt fdrop loop ;
+: sbenchmark 1600000 0 do 2.0 sqrt fdrop loop ;
+
+fvariable bstart
+: bench ( word -- running-time )
+	ftime bstart f!
+	execute
+	ftime bstart f@ f- ;
+
+"C version:    " print ' sbenchmark bench f. cr
+"Pez version:  " print ' cbenchmark bench f. cr
